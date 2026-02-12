@@ -24,9 +24,9 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/30 glass">
       <div className="container flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15">
             <Activity className="h-5 w-5 text-primary" />
           </div>
@@ -41,7 +41,7 @@ const Header = () => {
               <Link key={item.to} to={item.to}>
                 <Button
                   variant="ghost"
-                  className={`gap-2 text-sm ${active ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
+                  className={`gap-2 text-sm rounded-lg ${active ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground"}`}
                 >
                   <item.icon className="h-4 w-4" />
                   {item.label}
@@ -50,13 +50,13 @@ const Header = () => {
             );
           })}
           {user ? (
-            <Button variant="ghost" size="sm" className="gap-2 text-sm text-muted-foreground ml-2" onClick={handleSignOut}>
+            <Button variant="ghost" size="sm" className="gap-2 text-sm text-muted-foreground ml-2 rounded-lg" onClick={handleSignOut}>
               <LogOut className="h-4 w-4" />
               Sign Out
             </Button>
           ) : (
             <Link to="/auth">
-              <Button variant="hero" size="sm" className="gap-2 ml-2">
+              <Button variant="hero" size="sm" className="gap-2 ml-3 rounded-lg">
                 <LogIn className="h-4 w-4" />
                 Sign In
               </Button>
@@ -77,7 +77,7 @@ const Header = () => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl overflow-hidden"
+            className="md:hidden border-t border-border/30 glass overflow-hidden"
           >
             <nav className="container flex flex-col gap-1 py-4">
               {navItems.map((item) => {
@@ -86,7 +86,7 @@ const Header = () => {
                   <Link key={item.to} to={item.to} onClick={() => setMobileOpen(false)}>
                     <Button
                       variant="ghost"
-                      className={`w-full justify-start gap-3 ${active ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
+                      className={`w-full justify-start gap-3 rounded-lg ${active ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
                     >
                       <item.icon className="h-4 w-4" />
                       {item.label}
@@ -95,13 +95,13 @@ const Header = () => {
                 );
               })}
               {user ? (
-                <Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground" onClick={() => { handleSignOut(); setMobileOpen(false); }}>
+                <Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground rounded-lg" onClick={() => { handleSignOut(); setMobileOpen(false); }}>
                   <LogOut className="h-4 w-4" />
                   Sign Out
                 </Button>
               ) : (
                 <Link to="/auth" onClick={() => setMobileOpen(false)}>
-                  <Button variant="hero" className="w-full gap-2">
+                  <Button variant="hero" className="w-full gap-2 rounded-lg">
                     <LogIn className="h-4 w-4" />
                     Sign In
                   </Button>
