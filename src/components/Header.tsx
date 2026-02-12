@@ -1,8 +1,9 @@
-import { Link, useLocation } from "react-router-dom";
-import { Activity, LayoutDashboard, Dumbbell, Brain, Menu, X } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Activity, LayoutDashboard, Dumbbell, Brain, Menu, X, LogOut, LogIn } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navItems = [
   { to: "/", label: "Home", icon: Activity },
@@ -13,7 +14,14 @@ const navItems = [
 
 const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
@@ -22,9 +30,7 @@ const Header = () => {
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15">
             <Activity className="h-5 w-5 text-primary" />
           </div>
-          <span className="font-display text-xl font-bold tracking-tight">
-            VITALIS
-          </span>
+          <span className="font-display text-xl font-bold tracking-tight">VITALIS</span>
         </Link>
 
         {/* Desktop nav */}
@@ -43,15 +49,23 @@ const Header = () => {
               </Link>
             );
           })}
+          {user ? (
+            <Button variant="ghost" size="sm" className="gap-2 text-sm text-muted-foreground ml-2" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </Button>
+          ) : (
+            <Link to="/auth">
+              <Button variant="hero" size="sm" className="gap-2 ml-2">
+                <LogIn className="h-4 w-4" />
+                Sign In
+              </Button>
+            </Link>
+          )}
         </nav>
 
         {/* Mobile toggle */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={() => setMobileOpen(!mobileOpen)}
-        >
+        <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>
       </div>
@@ -80,6 +94,19 @@ const Header = () => {
                   </Link>
                 );
               })}
+              {user ? (
+                <Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground" onClick={() => { handleSignOut(); setMobileOpen(false); }}>
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
+                </Button>
+              ) : (
+                <Link to="/auth" onClick={() => setMobileOpen(false)}>
+                  <Button variant="hero" className="w-full gap-2">
+                    <LogIn className="h-4 w-4" />
+                    Sign In
+                  </Button>
+                </Link>
+              )}
             </nav>
           </motion.div>
         )}
