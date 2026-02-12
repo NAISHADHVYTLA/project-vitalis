@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Calculator, RotateCcw, Pencil } from "lucide-react";
+
+const STORAGE_KEY = "vitalis-bmi";
 
 const BMICalculator = () => {
   const [weight, setWeight] = useState("");
@@ -9,10 +11,38 @@ const BMICalculator = () => {
   const [age, setAge] = useState("");
   const [neck, setNeck] = useState("");
   const [waist, setWaist] = useState("");
+  const [hip, setHip] = useState("");
+  const [gender, setGender] = useState<"male" | "female">("male");
   const [result, setResult] = useState<{
     bmi: number; bmr: number; tdee: number; category: string; bodyFat: number | null;
   } | null>(null);
   const [isEditing, setIsEditing] = useState(true);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        setWeight(data.weight || "");
+        setHeight(data.height || "");
+        setAge(data.age || "");
+        setNeck(data.neck || "");
+        setWaist(data.waist || "");
+        setHip(data.hip || "");
+        setGender(data.gender || "male");
+        if (data.result) {
+          setResult(data.result);
+          setIsEditing(false);
+        }
+      }
+    } catch {}
+  }, []);
+
+  // Save to localStorage when result changes
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ weight, height, age, neck, waist, hip, gender, result }));
+  }, [weight, height, age, neck, waist, hip, gender, result]);
 
   const calculate = () => {
     const w = parseFloat(weight);
@@ -21,7 +51,10 @@ const BMICalculator = () => {
     if (!w || !h) return;
 
     const bmi = w / (h * h);
-    const bmr = 10 * w + 6.25 * (h * 100) - 5 * a + 5; // Mifflin-St Jeor (male default)
+    // Mifflin-St Jeor
+    const bmr = gender === "male"
+      ? 10 * w + 6.25 * (h * 100) - 5 * a + 5
+      : 10 * w + 6.25 * (h * 100) - 5 * a - 161;
     const tdee = bmr * 1.55;
 
     let category = "Normal";
@@ -30,13 +63,20 @@ const BMICalculator = () => {
     else if (bmi < 30) category = "Overweight";
     else category = "Obese";
 
-    // US Navy body fat estimation (male)
+    // US Navy body fat estimation
     let bodyFat: number | null = null;
     const neckCm = parseFloat(neck);
     const waistCm = parseFloat(waist);
-    if (neckCm && waistCm && h) {
+    const hipCm = parseFloat(hip);
+    const heightCm = h * 100;
+
+    if (gender === "male" && neckCm && waistCm) {
       bodyFat = Math.round(
-        (495 / (1.0324 - 0.19077 * Math.log10(waistCm - neckCm) + 0.15456 * Math.log10(h * 100)) - 450) * 10
+        (495 / (1.0324 - 0.19077 * Math.log10(waistCm - neckCm) + 0.15456 * Math.log10(heightCm)) - 450) * 10
+      ) / 10;
+    } else if (gender === "female" && neckCm && waistCm && hipCm) {
+      bodyFat = Math.round(
+        (495 / (1.29579 - 0.35004 * Math.log10(waistCm + hipCm - neckCm) + 0.22100 * Math.log10(heightCm)) - 450) * 10
       ) / 10;
     }
 
@@ -51,13 +91,9 @@ const BMICalculator = () => {
   };
 
   const reset = () => {
-    setWeight("");
-    setHeight("");
-    setAge("");
-    setNeck("");
-    setWaist("");
-    setResult(null);
-    setIsEditing(true);
+    setWeight(""); setHeight(""); setAge(""); setNeck(""); setWaist(""); setHip("");
+    setGender("male"); setResult(null); setIsEditing(true);
+    localStorage.removeItem(STORAGE_KEY);
   };
 
   return (
@@ -83,6 +119,22 @@ const BMICalculator = () => {
 
       {isEditing ? (
         <>
+          {/* Gender toggle */}
+          <div className="flex rounded-lg bg-secondary/50 p-1 mb-4">
+            <button
+              className={`flex-1 text-xs font-medium py-1.5 rounded-md transition-all ${gender === "male" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+              onClick={() => setGender("male")}
+            >
+              Male
+            </button>
+            <button
+              className={`flex-1 text-xs font-medium py-1.5 rounded-md transition-all ${gender === "female" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+              onClick={() => setGender("female")}
+            >
+              Female
+            </button>
+          </div>
+
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">Weight (kg)</label>
@@ -93,7 +145,7 @@ const BMICalculator = () => {
               <Input type="number" placeholder="175" value={height} onChange={(e) => setHeight(e.target.value)} className="bg-secondary/50 border-border/50" />
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="grid grid-cols-3 gap-3 mb-3">
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">Age</label>
               <Input type="number" placeholder="25" value={age} onChange={(e) => setAge(e.target.value)} className="bg-secondary/50 border-border/50" />
@@ -107,6 +159,12 @@ const BMICalculator = () => {
               <Input type="number" placeholder="85" value={waist} onChange={(e) => setWaist(e.target.value)} className="bg-secondary/50 border-border/50" />
             </div>
           </div>
+          {gender === "female" && (
+            <div className="mb-4">
+              <label className="text-xs text-muted-foreground mb-1 block">Hip (cm)</label>
+              <Input type="number" placeholder="95" value={hip} onChange={(e) => setHip(e.target.value)} className="bg-secondary/50 border-border/50" />
+            </div>
+          )}
           <Button onClick={calculate} className="w-full" variant="hero" size="sm">Calculate</Button>
         </>
       ) : null}
