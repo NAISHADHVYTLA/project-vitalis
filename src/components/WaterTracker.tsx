@@ -1,13 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Droplets, Plus, Minus, RotateCcw, Pencil } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
+const STORAGE_KEY = "vitalis-water";
+
 const WaterTracker = () => {
-  const [glasses, setGlasses] = useState(3);
+  const [glasses, setGlasses] = useState(0);
   const [goal, setGoal] = useState(8);
   const [isEditing, setIsEditing] = useState(false);
   const [editGoal, setEditGoal] = useState("8");
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        setGlasses(data.glasses ?? 0);
+        setGoal(data.goal ?? 8);
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ glasses, goal }));
+  }, [glasses, goal]);
+
   const pct = Math.min((glasses / goal) * 100, 100);
 
   const saveGoal = () => {
