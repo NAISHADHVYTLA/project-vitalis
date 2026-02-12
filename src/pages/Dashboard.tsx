@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import StatsCards from "@/components/StatsCards";
 import BMICalculator from "@/components/BMICalculator";
 import WaterTracker from "@/components/WaterTracker";
+import CalorieTracker from "@/components/CalorieTracker";
 import WorkoutCard from "@/components/WorkoutCard";
 import { motion } from "framer-motion";
 import { TrendingUp } from "lucide-react";
@@ -34,6 +35,10 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-6">
           <BMICalculator />
           <WaterTracker />
+        </div>
+
+        <div className="mt-6">
+          <CalorieTracker />
         </div>
 
         <div className="mt-8">
