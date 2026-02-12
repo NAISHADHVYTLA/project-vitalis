@@ -1,20 +1,27 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Calculator } from "lucide-react";
+import { Calculator, RotateCcw, Pencil } from "lucide-react";
 
 const BMICalculator = () => {
   const [weight, setWeight] = useState("");
   const [height, setHeight] = useState("");
-  const [result, setResult] = useState<{ bmi: number; bmr: number; tdee: number; category: string } | null>(null);
+  const [age, setAge] = useState("");
+  const [neck, setNeck] = useState("");
+  const [waist, setWaist] = useState("");
+  const [result, setResult] = useState<{
+    bmi: number; bmr: number; tdee: number; category: string; bodyFat: number | null;
+  } | null>(null);
+  const [isEditing, setIsEditing] = useState(true);
 
   const calculate = () => {
     const w = parseFloat(weight);
     const h = parseFloat(height) / 100;
+    const a = parseFloat(age) || 25;
     if (!w || !h) return;
 
     const bmi = w / (h * h);
-    const bmr = 10 * w + 6.25 * (h * 100) - 5 * 25 + 5; // Mifflin-St Jeor (male default, age 25)
+    const bmr = 10 * w + 6.25 * (h * 100) - 5 * a + 5; // Mifflin-St Jeor (male default)
     const tdee = bmr * 1.55;
 
     let category = "Normal";
@@ -23,47 +30,89 @@ const BMICalculator = () => {
     else if (bmi < 30) category = "Overweight";
     else category = "Obese";
 
-    setResult({ bmi: Math.round(bmi * 10) / 10, bmr: Math.round(bmr), tdee: Math.round(tdee), category });
+    // US Navy body fat estimation (male)
+    let bodyFat: number | null = null;
+    const neckCm = parseFloat(neck);
+    const waistCm = parseFloat(waist);
+    if (neckCm && waistCm && h) {
+      bodyFat = Math.round(
+        (495 / (1.0324 - 0.19077 * Math.log10(waistCm - neckCm) + 0.15456 * Math.log10(h * 100)) - 450) * 10
+      ) / 10;
+    }
+
+    setResult({
+      bmi: Math.round(bmi * 10) / 10,
+      bmr: Math.round(bmr),
+      tdee: Math.round(tdee),
+      category,
+      bodyFat,
+    });
+    setIsEditing(false);
+  };
+
+  const reset = () => {
+    setWeight("");
+    setHeight("");
+    setAge("");
+    setNeck("");
+    setWaist("");
+    setResult(null);
+    setIsEditing(true);
   };
 
   return (
     <div className="card-gradient rounded-xl border border-border/50 p-6">
-      <div className="flex items-center gap-3 mb-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15">
-          <Calculator className="h-4 w-4 text-primary" />
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15">
+            <Calculator className="h-4 w-4 text-primary" />
+          </div>
+          <h3 className="font-display font-semibold text-lg">Health Calculator</h3>
         </div>
-        <h3 className="font-display font-semibold text-lg">Health Calculator</h3>
+        {result && (
+          <div className="flex gap-1">
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsEditing(true)}>
+              <Pencil className="h-3.5 w-3.5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={reset}>
+              <RotateCcw className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        )}
       </div>
 
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Weight (kg)</label>
-          <Input
-            type="number"
-            placeholder="70"
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
-            className="bg-secondary/50 border-border/50"
-          />
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Height (cm)</label>
-          <Input
-            type="number"
-            placeholder="175"
-            value={height}
-            onChange={(e) => setHeight(e.target.value)}
-            className="bg-secondary/50 border-border/50"
-          />
-        </div>
-      </div>
+      {isEditing ? (
+        <>
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Weight (kg)</label>
+              <Input type="number" placeholder="70" value={weight} onChange={(e) => setWeight(e.target.value)} className="bg-secondary/50 border-border/50" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Height (cm)</label>
+              <Input type="number" placeholder="175" value={height} onChange={(e) => setHeight(e.target.value)} className="bg-secondary/50 border-border/50" />
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Age</label>
+              <Input type="number" placeholder="25" value={age} onChange={(e) => setAge(e.target.value)} className="bg-secondary/50 border-border/50" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Neck (cm)</label>
+              <Input type="number" placeholder="38" value={neck} onChange={(e) => setNeck(e.target.value)} className="bg-secondary/50 border-border/50" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Waist (cm)</label>
+              <Input type="number" placeholder="85" value={waist} onChange={(e) => setWaist(e.target.value)} className="bg-secondary/50 border-border/50" />
+            </div>
+          </div>
+          <Button onClick={calculate} className="w-full" variant="hero" size="sm">Calculate</Button>
+        </>
+      ) : null}
 
-      <Button onClick={calculate} className="w-full" variant="hero" size="sm">
-        Calculate
-      </Button>
-
-      {result && (
-        <div className="grid grid-cols-3 gap-3 mt-5">
+      {result && !isEditing && (
+        <div className="grid grid-cols-2 gap-3">
           <div className="rounded-lg bg-secondary/50 p-3 text-center">
             <p className="text-2xl font-display font-bold text-primary">{result.bmi}</p>
             <p className="text-xs text-muted-foreground">BMI</p>
@@ -77,6 +126,12 @@ const BMICalculator = () => {
             <p className="text-2xl font-display font-bold text-foreground">{result.tdee}</p>
             <p className="text-xs text-muted-foreground">TDEE</p>
           </div>
+          {result.bodyFat !== null && (
+            <div className="rounded-lg bg-secondary/50 p-3 text-center">
+              <p className="text-2xl font-display font-bold text-primary">{result.bodyFat}%</p>
+              <p className="text-xs text-muted-foreground">Body Fat</p>
+            </div>
+          )}
         </div>
       )}
     </div>
