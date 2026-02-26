@@ -1,43 +1,13 @@
 import { Button } from "./ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, Zap, Heart, Brain, Activity, Shield, TrendingUp, Users } from "lucide-react";
+import { ArrowRight, Zap, Heart, Brain, Activity, Shield } from "lucide-react";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
 
 const features = [
   { icon: Zap, label: "AI-Powered Plans", desc: "Personalized workout & diet recommendations powered by machine learning" },
   { icon: Heart, label: "Health Tracking", desc: "BMI, calories, water, sleep & heart rate — all in one dashboard" },
   { icon: Brain, label: "Mental Wellness", desc: "Meditation, breathing exercises & mood tracking for holistic health" },
 ];
-
-const metrics = [
-  { value: 50000, suffix: "+", label: "Active Users", icon: Users },
-  { value: 2, suffix: "M+", label: "Workouts Logged", icon: TrendingUp },
-  { value: 98, suffix: "%", label: "User Satisfaction", icon: Heart },
-];
-
-const AnimatedCounter = ({ value, suffix }: { value: number; suffix: string }) => {
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    const duration = 2000;
-    const steps = 60;
-    const increment = value / steps;
-    let current = 0;
-    const timer = setInterval(() => {
-      current += increment;
-      if (current >= value) {
-        setCount(value);
-        clearInterval(timer);
-      } else {
-        setCount(Math.floor(current));
-      }
-    }, duration / steps);
-    return () => clearInterval(timer);
-  }, [value]);
-
-  const display = value >= 1000 ? `${Math.floor(count / 1000)}K` : count.toString();
-  return <span>{display}{suffix}</span>;
-};
 
 const HeroSection = () => {
   return (
@@ -72,7 +42,7 @@ const HeroSection = () => {
             className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 glass-border px-5 py-2 mb-10"
           >
             <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-xs font-medium text-primary tracking-wide">NOW IN PUBLIC BETA — JOIN 50K+ USERS</span>
+            <span className="text-xs font-medium text-primary tracking-wide">NOW IN PUBLIC BETA — FREE TO USE</span>
           </motion.div>
 
           <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-bold tracking-tight leading-[1.05] mb-7">
@@ -104,31 +74,11 @@ const HeroSection = () => {
           </p>
         </motion.div>
 
-        {/* Metrics bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4 }}
-          className="flex justify-center gap-12 md:gap-20 mb-20"
-        >
-          {metrics.map((m, i) => (
-            <div key={i} className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <m.icon className="h-4 w-4 text-primary/60" />
-                <p className="text-3xl md:text-4xl font-display font-bold text-gradient">
-                  <AnimatedCounter value={m.value} suffix={m.suffix} />
-                </p>
-              </div>
-              <p className="text-xs text-muted-foreground tracking-wide">{m.label}</p>
-            </div>
-          ))}
-        </motion.div>
-
         {/* Feature cards */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.6 }}
+          transition={{ duration: 0.7, delay: 0.4 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto"
         >
           {features.map((f, i) => (
@@ -151,22 +101,22 @@ const HeroSection = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.0 }}
+          transition={{ delay: 0.8 }}
           className="flex items-center justify-center gap-6 mt-16 text-muted-foreground/50"
         >
           <div className="flex items-center gap-1.5 text-xs">
             <Shield className="h-3.5 w-3.5" />
-            <span>HIPAA Ready</span>
+            <span>End-to-End Encrypted</span>
           </div>
           <div className="h-3 w-px bg-border" />
           <div className="flex items-center gap-1.5 text-xs">
             <Activity className="h-3.5 w-3.5" />
-            <span>99.9% Uptime</span>
+            <span>Open Source</span>
           </div>
           <div className="h-3 w-px bg-border" />
           <div className="flex items-center gap-1.5 text-xs">
             <Shield className="h-3.5 w-3.5" />
-            <span>SOC 2 Certified</span>
+            <span>Privacy First</span>
           </div>
         </motion.div>
       </div>

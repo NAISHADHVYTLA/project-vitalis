@@ -1,24 +1,20 @@
 import { motion } from "framer-motion";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { BarChart3 } from "lucide-react";
 
-interface WeeklyData {
-  day: string;
-  calories: number;
-  steps: number;
-  water: number;
-}
-
-const weeklyData: WeeklyData[] = [
-  { day: "Mon", calories: 1750, steps: 6200, water: 5 },
-  { day: "Tue", calories: 2100, steps: 8900, water: 7 },
-  { day: "Wed", calories: 1900, steps: 7400, water: 6 },
-  { day: "Thu", calories: 2300, steps: 10200, water: 8 },
-  { day: "Fri", calories: 1600, steps: 5800, water: 4 },
-  { day: "Sat", calories: 2050, steps: 9100, water: 7 },
-  { day: "Sun", calories: 1850, steps: 8243, water: 6 },
+const emptyData = [
+  { day: "Mon", calories: 0, steps: 0 },
+  { day: "Tue", calories: 0, steps: 0 },
+  { day: "Wed", calories: 0, steps: 0 },
+  { day: "Thu", calories: 0, steps: 0 },
+  { day: "Fri", calories: 0, steps: 0 },
+  { day: "Sat", calories: 0, steps: 0 },
+  { day: "Sun", calories: 0, steps: 0 },
 ];
 
 const WeeklyChart = () => {
+  const hasData = emptyData.some(d => d.calories > 0 || d.steps > 0);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -43,9 +39,15 @@ const WeeklyChart = () => {
         </div>
       </div>
 
-      <div className="h-[200px]">
+      <div className="h-[200px] relative">
+        {!hasData && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+            <BarChart3 className="h-8 w-8 text-muted-foreground/30 mb-2" />
+            <p className="text-sm text-muted-foreground/60">Start logging to see your trends</p>
+          </div>
+        )}
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={weeklyData} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
+          <AreaChart data={emptyData} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="colorCalories" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="hsl(160, 84%, 44%)" stopOpacity={0.3} />
@@ -74,24 +76,8 @@ const WeeklyChart = () => {
               }}
               itemStyle={{ color: "hsl(210, 20%, 85%)" }}
             />
-            <Area
-              type="monotone"
-              dataKey="calories"
-              stroke="hsl(160, 84%, 44%)"
-              strokeWidth={2}
-              fill="url(#colorCalories)"
-              dot={false}
-              activeDot={{ r: 4, fill: "hsl(160, 84%, 44%)", stroke: "hsl(220, 20%, 7%)", strokeWidth: 2 }}
-            />
-            <Area
-              type="monotone"
-              dataKey="steps"
-              stroke="hsl(217, 91%, 67%)"
-              strokeWidth={2}
-              fill="url(#colorSteps)"
-              dot={false}
-              activeDot={{ r: 4, fill: "hsl(217, 91%, 67%)", stroke: "hsl(220, 20%, 7%)", strokeWidth: 2 }}
-            />
+            <Area type="monotone" dataKey="calories" stroke="hsl(160, 84%, 44%)" strokeWidth={2} fill="url(#colorCalories)" dot={false} />
+            <Area type="monotone" dataKey="steps" stroke="hsl(217, 91%, 67%)" strokeWidth={2} fill="url(#colorSteps)" dot={false} />
           </AreaChart>
         </ResponsiveContainer>
       </div>
