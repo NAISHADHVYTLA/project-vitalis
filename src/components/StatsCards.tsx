@@ -7,10 +7,10 @@ import { Input } from "./ui/input";
 const STORAGE_KEY = "vitalis-stats";
 
 const defaultStats = [
-  { icon: "Flame", label: "Calories", value: "1,850", unit: "kcal", color: "text-orange-400" },
-  { icon: "Footprints", label: "Steps", value: "8,243", unit: "steps", color: "text-primary" },
-  { icon: "Moon", label: "Sleep", value: "7.2", unit: "hours", color: "text-indigo-400" },
-  { icon: "Heart", label: "Heart Rate", value: "72", unit: "bpm", color: "text-rose-400" },
+  { icon: "Flame", label: "Calories", value: "0", unit: "kcal", color: "text-orange-400" },
+  { icon: "Footprints", label: "Steps", value: "0", unit: "steps", color: "text-primary" },
+  { icon: "Moon", label: "Sleep", value: "0", unit: "hours", color: "text-indigo-400" },
+  { icon: "Heart", label: "Heart Rate", value: "—", unit: "bpm", color: "text-rose-400" },
 ];
 
 const iconMap: Record<string, React.ElementType> = { Flame, Footprints, Moon, Heart };
